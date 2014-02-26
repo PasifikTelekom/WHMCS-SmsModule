@@ -106,7 +106,7 @@ class AktuelSms{
             $this->addLog("Message: ".$message);
             $this->addLog("SenderClass: ".$sender_function);
 
-            include("senders/".$sender_function.".php");
+            include_once("senders/".$sender_function.".php");
             $sender = new $sender_function(trim($message),$this->getGsmnumber());
             $result = $sender->send();
 
@@ -168,7 +168,7 @@ class AktuelSms{
         if ($handle = opendir(dirname(__FILE__).'/hooks')) {
             while (false !== ($entry = readdir($handle))) {
                 if(substr($entry,strlen($entry)-4,strlen($entry)) == ".php"){
-                    $file[] = require('hooks/'.$entry);
+                    $file[] = require_once('hooks/'.$entry);
                 }
             }
             closedir($handle);
@@ -195,81 +195,17 @@ class AktuelSms{
         $this->addLog("Mesaj veritabanına kaydedildi");
     }
 
-    /* Here you can change anything from your message string */
+    /* Main message convert function. Will be removed next release */
     function util_convert($message){
-        /* In this function i have changed Turkish characters to
-        English chars.
-        */
         $changefrom = array('ı', 'İ', 'ü', 'Ü', 'ö', 'Ö', 'ğ', 'Ğ', 'ç', 'Ç','ş','Ş');
         $changeto = array('i', 'I', 'u', 'U', 'o', 'O', 'g', 'G', 'c', 'C','s','S');
         return str_replace($changefrom, $changeto, $message);
     }
 
-    /* Here you can specify gsm numbers to your country */
+    /* Default number format */
     function util_gsmnumber($number){
-        /* In this function i have removed special chars and
-         * controlled number if it is real?
-         * All numbers in Turkey starts with 0905 */
-        $replacefrom = array('-', '(',')', '.', '+', ' ');
+        $replacefrom = array('-', '(',')', '.', ',', '+', ' ');
         $number = str_replace($replacefrom, '', $number);
-        if (strlen($number) < 10) {
-            $this->addLog("Numara formatı hatalı: ".$number);
-            $this->addError("Numara formatı hatalı: ".$number);
-            return null;
-        }
-
-        $sender = $this->getSender();
-
-        if($sender == "clickatell"){
-			if (strlen($number) == 10) {
-                $number = '90' . $number;
-            } elseif (strlen($number) == 11) {
-                $number = '9' . $number;
-            }
-
-            if (substr($number, 0, 3) != "905") {
-                $this->addLog("Numara formatı hatalı: ".$number);
-                $this->addError("Numara formatı hatalı: ".$number);
-                return null;
-            }
-        }elseif($sender == "ucuzsmsal"){
-
-            if (strlen($number) == 10) {
-
-            } elseif (strlen($number) == 11) {
-                $number = substr($number,1,strlen($number));
-            } elseif (strlen($number) == 12) {
-                $number = substr($number,2,strlen($number));
-            }
-
-            if (substr($number, 0, 1) != "5") {
-                $this->addLog("Numara formatı hatalı: ".$number);
-                $this->addError("Numara formatı hatalı: ".$number);
-                return null;
-            }
-        }elseif($sender == "netgsm"){
-            if (strlen($number) == 10) {
-                $number = '90' . $number;
-            } elseif (strlen($number) == 11) {
-                $number = '9' . $number;
-            }
-
-            if (substr($number, 0, 3) != "905") {
-                $this->addLog("Numara formatı hatalı: ".$number);
-                $this->addError("Numara formatı hatalı: ".$number);
-                return null;
-            }
-        }elseif($sender == "msg91"){
-			if (strlen($number) == 10){
-                $number = '91' . $number;
-            }
-			
-            if (substr($number, 0, 2) != "91"){
-                $this->addLog("Number format incorrect: ".$number);
-                $this->addError("Number format incorrect: ".$number);
-                return null;
-            }
-        }
 
         return $number;
     }
@@ -343,6 +279,22 @@ class AktuelSms{
         $data = mysql_fetch_assoc($result);
 
         return $data;
+    }
+
+    function changeDateFormat($date = null){
+        $settings = $this->getSettings();
+        $dateformat = $settings['dateformat'];
+        if(!$dateformat){
+            return $date;
+        }
+
+        $date = explode("-",$date);
+        $year = $date[0];
+        $month = $date[1];
+        $day = $date[2];
+
+        $dateformat = str_replace(array("%d","%m","%y"),array($day,$month,$year),$dateformat);
+        return $dateformat;
     }
 
 }
