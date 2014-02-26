@@ -14,7 +14,7 @@ function aktuel_sms_config() {
     $configarray = array(
         "name" => "Aktuel Sms",
         "description" => "WHMCS Sms Addon. You can see details from: https://github.com/AktuelSistem/WHMCS-SmsModule",
-        "version" => "1.1.1",
+        "version" => "1.1.5",
         "author" => "Aktüel Sistem ve Bilgi Teknolojileri",
 		"language" => "turkish",
     );
@@ -23,20 +23,20 @@ function aktuel_sms_config() {
 
 function aktuel_sms_activate() {
 
-    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) NULL,`text` text NULL,`msgid` varchar(50) NULL,`status` varchar(10) NULL,`errors` TEXT NULL,`logs` TEXT NULL,`user` int(11) NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
-	$result = mysql_query($query);
+    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_messages` (`id` int(11) NOT NULL AUTO_INCREMENT,`sender` varchar(40) NOT NULL,`to` varchar(15) DEFAULT NULL,`text` text,`msgid` varchar(50) DEFAULT NULL,`status` varchar(10) DEFAULT NULL,`errors` text,`logs` text,`user` int(11) DEFAULT NULL,`datetime` datetime NOT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;";
+	mysql_query($query);
 
-    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` ( `id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) NOT NULL,`apiparams` varchar(500) NOT NULL,`wantsmsfield` int(11) NULL,`gsmnumberfield` int(11) NULL,`version` varchar(6) NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2;";
-	$result = mysql_query($query);
+    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_settings` (`id` int(11) NOT NULL AUTO_INCREMENT,`api` varchar(40) CHARACTER SET utf8 NOT NULL,`apiparams` varchar(500) CHARACTER SET utf8 NOT NULL,`wantsmsfield` int(11) DEFAULT NULL,`gsmnumberfield` int(11) DEFAULT NULL,`dateformat` varchar(12) CHARACTER SET utf8 DEFAULT NULL,`version` varchar(6) CHARACTER SET utf8 DEFAULT NULL,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+	mysql_query($query);
 
-    $query = "INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`, `version`) VALUES ('', '', 0, 0, '1.0.1');";
-	$result = mysql_query($query);
+    $query = "INSERT INTO `mod_aktuelsms_settings` (`api`, `apiparams`, `wantsmsfield`, `gsmnumberfield`,`dateformat`, `version`) VALUES ('', '', 0, 0,'%d.%m.%y','1.1.3');";
+	mysql_query($query);
 
-    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(50) NOT NULL,`type` enum('client','admin') NOT NULL,`admingsm` varchar(255) NOT NULL,`template` varchar(240) NOT NULL,`variables` varchar(500) NOT NULL,`active` tinyint(1) NOT NULL,`extra` varchar(3) NOT NULL,`description` TEXT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13;";
-	$result = mysql_query($query);
+    $query = "CREATE TABLE IF NOT EXISTS `mod_aktuelsms_templates` (`id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(50) CHARACTER SET utf8 NOT NULL,`type` enum('client','admin') CHARACTER SET utf8 NOT NULL,`admingsm` varchar(255) CHARACTER SET utf8 NOT NULL,`template` varchar(240) CHARACTER SET utf8 NOT NULL,`variables` varchar(500) CHARACTER SET utf8 NOT NULL,`active` tinyint(1) NOT NULL,`extra` varchar(3) CHARACTER SET utf8 NOT NULL,`description` text CHARACTER SET utf8,PRIMARY KEY (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+	mysql_query($query);
 
     //Creating hooks
-	require "smsclass.php";
+	require_once("smsclass.php");
     $class = new AktuelSms();
     $class->checkHooks();
 
@@ -46,11 +46,11 @@ function aktuel_sms_activate() {
 function aktuel_sms_deactivate() {
 
     $query = "DROP TABLE `mod_aktuelsms_templates`";
-	$result = mysql_query($query);
+	mysql_query($query);
     $query = "DROP TABLE `mod_aktuelsms_settings`";
-    $result = mysql_query($query);
+    mysql_query($query);
     $query = "DROP TABLE `mod_aktuelsms_messages`";
-    $result = mysql_query($query);
+    mysql_query($query);
 
     return array('status'=>'success','description'=>'Aktuel Sms succesfully deactivated :(');
 }
@@ -60,16 +60,32 @@ function aktuel_sms_upgrade($vars) {
 
     switch($version){
         case "1":
-            $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1.0.1'";
-            mysql_query($sql);
         case "1.0.1":
-            $sql = "UPDATE `mod_aktuelsms_settings` SET `version` = '1.1'";
-            mysql_query($sql);
             $sql = "ALTER TABLE `mod_aktuelsms_messages` ADD `errors` TEXT NULL AFTER `status` ;ALTER TABLE `mod_aktuelsms_templates` ADD `description` TEXT NULL ;ALTER TABLE `mod_aktuelsms_messages` ADD `logs` TEXT NULL AFTER `errors` ;";
             mysql_query($sql);
-        case "1.1";
+        case "1.1":
             $sql = "ALTER TABLE `mod_aktuelsms_settings` CHANGE `apiparams` `apiparams` VARCHAR( 500 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;";
             mysql_query($sql);
+        case "1.1.1":
+        case "1.1.2":
+            $sql = "ALTER TABLE `mod_aktuelsms_settings` ADD `dateformat` VARCHAR(12) NULL AFTER `gsmnumberfield`;UPDATE `mod_aktuelsms_settings` SET dateformat = '%d.%m.%y';";
+            mysql_query($sql);
+        case "1.1.3":
+        case "1.1.4":
+            $sql = "ALTER TABLE `mod_aktuelsms_templates` CHANGE `name` `name` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `type` `type` ENUM( 'client', 'admin' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `admingsm` `admingsm` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `template` `template` VARCHAR( 240 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `variables` `variables` VARCHAR( 500 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `extra` `extra` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;";
+            mysql_query($sql);
+            $sql = "ALTER TABLE `mod_aktuelsms_settings` CHANGE `api` `api` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `apiparams` `apiparams` VARCHAR( 500 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `dateformat` `dateformat` VARCHAR( 12 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `version` `version` VARCHAR( 6 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;";
+            mysql_query($sql);
+            $sql = "ALTER TABLE `mod_aktuelsms_messages` CHANGE `sender` `sender` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,CHANGE `to` `to` VARCHAR( 15 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `text` `text` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `msgid` `msgid` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `status` `status` VARCHAR( 10 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `errors` `errors` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,CHANGE `logs` `logs` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;";
+            mysql_query($sql);
+
+            $sql = "ALTER TABLE `mod_aktuelsms_templates` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
+            mysql_query($sql);
+            $sql = "ALTER TABLE `mod_aktuelsms_settings` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
+            mysql_query($sql);
+            $sql = "ALTER TABLE `mod_aktuelsms_messages` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
+            mysql_query($sql);
+
     }
 
     $class = new AktuelSms();
@@ -83,7 +99,7 @@ function aktuel_sms_output($vars){
 	putenv("TZ=Europe/Istanbul");
 
     $class = new AktuelSms();
-	
+
     $tab = $_GET['tab'];
     echo '
     <div id="clienttabs">
@@ -105,7 +121,8 @@ function aktuel_sms_output($vars){
                 "api" => $_POST['api'],
                 "apiparams" => json_encode($_POST['params']),
                 'wantsmsfield' => $_POST['wantsmsfield'],
-                'gsmnumberfield' => $_POST['gsmnumberfield']
+                'gsmnumberfield' => $_POST['gsmnumberfield'],
+                'dateformat' => $_POST['dateformat']
             );
             update_query("mod_aktuelsms_settings", $update, "");
         }
@@ -209,6 +226,10 @@ function aktuel_sms_output($vars){
                                 </select>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="fieldlabel" width="30%">'.$LANG['dateformat'].'</td>
+                            <td class="fieldarea"><input type="text" name="dateformat" size="40" value="' . $settings['dateformat'] . '"> e.g:  %d.%m.%y (27.01.2014)</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -304,6 +325,9 @@ function aktuel_sms_output($vars){
                 </tr>
                 ';
             }
+            echo '<tr>
+                <td colspan="2"><hr></td>
+            </tr>';
         }
         echo '
         </tbody>

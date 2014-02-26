@@ -1,18 +1,18 @@
 <?php
 $hook = array(
-    'hook' => 'AfterModuleCreate',
-    'function' => 'AfterModuleCreate_Hosting',
+    'hook' => 'AfterModuleChangePassword',
+    'function' => 'AfterModuleChangePassword',
     'description' => array(
-        'turkish' => 'Hosting hesabı oluşturulduktan sonra mesaj gönderir',
-        'english' => 'After hosting create'
+        'turkish' => 'Hosting hesabı şifresi değiştiğinde gönderir',
+        'english' => 'After module change password'
     ),
     'type' => 'client',
     'extra' => '',
-    'defaultmessage' => 'Sayin {firstname} {lastname}, {domain} icin hosting hizmeti aktif hale getirilmistir. KullaniciAdi: {username} Sifre: {password}',
+    'defaultmessage' => 'Sayin {firstname} {lastname}, {domain} hizmetinin hosting sifresi basariyla degisti. KullaniciAdi: {username} Sifre: {password}',
     'variables' => '{firstname}, {lastname}, {domain}, {username}, {password}'
 );
-if(!function_exists('AfterModuleCreate_Hosting')){
-    function AfterModuleCreate_Hosting($args){
+if(!function_exists('AfterModuleChangePassword')){
+    function AfterModuleChangePassword($args){
 
         $type = $args['params']['producttype'];
 
@@ -44,7 +44,7 @@ if(!function_exists('AfterModuleCreate_Hosting')){
         $num_rows = mysql_num_rows($result);
         if($num_rows == 1){
             $UserInformation = mysql_fetch_assoc($result);
-
+            
             $template['variables'] = str_replace(" ","",$template['variables']);
             $replacefrom = explode(",",$template['variables']);
             $replaceto = array($UserInformation['firstname'],$UserInformation['lastname'],$args['params']['domain'],$args['params']['username'],$args['params']['password']);
