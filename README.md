@@ -105,6 +105,7 @@ Supported SMS Gateways
 * Dakik SMS (Turkey)
 * msg91.com (India)
 * bytehand.com (Global, Russian)
+* PasifikTelekom (Turkey)
 
 Supported Hooks
 ---------------
