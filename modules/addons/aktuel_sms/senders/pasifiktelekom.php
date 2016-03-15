@@ -41,7 +41,7 @@ class pasifiktelekom extends AktuelSms {
         return array(
         	'log' => $log,
             'error' => $error,
-            'msgid' => $result["response_message_id"],
+            'msgid' => $result["response_message_id"]
         );
 	}
 	function balance(){
