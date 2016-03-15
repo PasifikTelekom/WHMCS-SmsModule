@@ -30,6 +30,7 @@ Desteklenen SMS Firmaları
 * Dakik SMS (Türkiye)
 * msg91.com (Hindistan)
 * bytehand.com (Global, Russian)
+* PasifikTelekom (Turkey)
 
 
 Desteklenen Hook'lar
