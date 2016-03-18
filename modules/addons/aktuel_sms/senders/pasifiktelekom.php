@@ -15,7 +15,7 @@ class pasifiktelekom extends AktuelSms {
 
 		$params = $this->getParams();
 
-		$json_data = '{"username": "'.$params->user.'", "password": "'.$params->pass.'", "sender": "'.$params->senderid.'", "message": "'.$this->message.'", "msisdn_list": "'$this->gsmnumber'"}';
+		$json_data = '{"username": "'.$params->user.'", "password": "'.$params->pass.'", "sender": "'.$params->senderid.'", "message": "'.$this->message.'", "msisdn_list": "'.$this->gsmnumber.'"}';
 		$URL = "http://oim.pasifiktelekom.com.tr/en/api/sendsms/";
 		$ch = curl_init($URL);
         curl_setopt($ch, CURLOPT_MUTE, 1);
