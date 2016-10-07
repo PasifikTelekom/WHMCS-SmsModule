@@ -17,16 +17,20 @@ class pasifiktelekom extends AktuelSms {
 
 		$json_data = '{"username": "'.$params->user.'", "password": "'.$params->pass.'", "sender": "'.$params->senderid.'", "message": "'.$this->message.'", "msisdn_list": "'.$this->gsmnumber.'"}';
 		$URL = "http://oim.pasifiktelekom.com.tr/en/api/sendsms/";
-		$ch = curl_init($URL);
-        curl_setopt($ch, CURLOPT_MUTE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "$json_data");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
+        $header = "Content-Type: application/json"."\r\n".
+				"Accept: application/json"."\r\n".
+				'Content-Length: ' . strlen($json_data);
+        $result = file_get_contents($URL, null, 
+			stream_context_create(
+				array(
+					'http' => array(
+						'method' => 'POST',
+						'header' => $header,
+						'content' => $json_data
+					),
+				)
+			)
+		);
         $return = $result;
         $log[] = ("Geri Dönüş Kodu: ".$result);
 
@@ -48,16 +52,20 @@ class pasifiktelekom extends AktuelSms {
 		$params = $this->getParams();
 		$json_data = '{"username": "'.$params->user.'", "password": "'.$params->pass.'"}';
 		$URL = "http://oim.pasifiktelekom.com.tr/en/api/getsettings/";
-		$ch = curl_init($URL);
-		curl_setopt($ch, CURLOPT_MUTE, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "$json_data");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$result = curl_exec($ch);
-		curl_close($ch);
+		$header = "Content-Type: application/json"."\r\n".
+				"Accept: application/json"."\r\n".
+				'Content-Length: ' . strlen($json_data);
+        $result = file_get_contents($URL, null, 
+			stream_context_create(
+				array(
+					'http' => array(
+						'method' => 'POST',
+						'header' => $header,
+						'content' => $json_data
+					),
+				)
+			)
+		);
 		$return = $result;
 		$result = json_decode($result, true);
 
@@ -69,16 +77,20 @@ class pasifiktelekom extends AktuelSms {
 		if($params->user && $params->pass && $msgid){
 			$json_data = '{"username": "'.$params->user.'", "password": "'.$params->pass.'", "sms_id": "'.$msgid.'"}';
 			$URL = "http://oim.pasifiktelekom.com.tr/en/api/generalreport/id/";
-			$ch = curl_init($URL);
-			curl_setopt($ch, CURLOPT_MUTE, 1);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-			curl_setopt($ch, CURLOPT_POSTFIELDS, "$json_data");
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$result = curl_exec($ch);
-			curl_close($ch);
+			$header = "Content-Type: application/json"."\r\n".
+				"Accept: application/json"."\r\n".
+				'Content-Length: ' . strlen($json_data);
+	        $result = file_get_contents($URL, null, 
+				stream_context_create(
+					array(
+						'http' => array(
+							'method' => 'POST',
+							'header' => $header,
+							'content' => $json_data
+						),
+					)
+				)
+			);
 			$return = $result;
 			$result = json_decode($result, true);
 			if ($result["succeeded"] && ((int)$result["delivered_count"]) > 0 ) {
