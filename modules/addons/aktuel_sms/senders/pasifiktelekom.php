@@ -1,5 +1,8 @@
 <?php 
-
+/*
+Pasifik Telekom
+http://www.pasifiktelekom.com.tr
+*/
 class pasifiktelekom extends AktuelSms {
     function __construct($message, $gsmnumber){
         $this->message = $this->utilmessage($message);
