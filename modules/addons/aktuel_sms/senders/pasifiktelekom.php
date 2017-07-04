@@ -1,7 +1,7 @@
 <?php 
 
 class pasifiktelekom extends AktuelSms {
-    function __constract($message, $gsmnumber){
+    function __construct($message, $gsmnumber){
         $this->message = $this->utilmessage($message);
         $this->gsmnumber = $this->utilgsmnumber($gsmnumber);
     }
